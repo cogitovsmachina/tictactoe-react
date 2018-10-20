@@ -25,12 +25,17 @@ class Board extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            value: null,
+            squares: Array(9).fill(null),
         };
     }
     renderSquare(i) {
         // So this property value can be received at rendering the Square Component
-        return <Square value={this.state}/>;
+        return(
+            <Square
+                value={this.state.squares[i]}
+                onClick={() => this.handleClick(i)}
+            />
+        );
     }
 
     render() {
