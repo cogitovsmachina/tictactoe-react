@@ -11,24 +11,6 @@ function Square(props){
 }
 
 class Board extends React.Component {
-
-    handleClick(i){
-        const history = this.state.history;
-        const current = history[history.length -1];
-        const squares = current.squares.slice();
-
-        if (calculateWinner(squares) || squares[i]){
-            return;
-        }
-        squares[i] = this.state.xIsNext ? 'A' : 'K';
-        this.setState({
-            history: history.concat([{
-                squares: squares,
-            }]),
-            xIsNext: !this.state.xIsNext,
-        });
-    }
-
     renderSquare(i) {
         // So this property value can be received at
         // rendering the Square Component
@@ -71,12 +53,39 @@ class Game extends React.Component {
             history: [{
                 squares: Array(9).fill(null),
             }],
+            stepNumber: 0,
             xIsNext: true,
         };
     }
+
+    handleClick(i){
+        const history = this.state.history.slice(0, this.state.stepNumber);
+        const current = history[history.length -1];
+        const squares = current.squares.slice();
+
+        if (calculateWinner(squares) || squares[i]){
+            return;
+        }
+        squares[i] = this.state.xIsNext ? 'A' : 'K';
+        this.setState({
+            history: history.concat([{
+                squares: squares,
+            }]),
+            stepNumber: history.length,
+            xIsNext: !this.state.xIsNext,
+        });
+    }
+
+    jumpTo(step) {
+        this.setState({
+            stepNumber: step,
+            xIsNext: (step % 2) === 0
+        });
+    }
+
     render() {
         const history = this.state.history;
-        const current = history[history.length - 1];
+        const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
         const moves = history.map((step, move) =>{
@@ -84,8 +93,8 @@ class Game extends React.Component {
                 'Ve al movimiento # ' + move:
                 'Ve al inicio del juego';
             return(
-                <li>
-                    <button onClick={() => this.jumpTo(move)}>{desc}></button>
+                <li key={move}>
+                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
         });
